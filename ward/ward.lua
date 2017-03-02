@@ -16,6 +16,8 @@ options = {
   debug = false,
 }
 
+local cppprog = "cc -E"
+
 local i = 1
 while i <= #arg do
   local argument = arg[i]
@@ -45,6 +47,9 @@ while i <= #arg do
        system_error "The -I option requires a directory argument"
       end
       push(preprocessor_options, "-I"..incdir)
+    elseif argument == "-cppprog" then
+      cppprog = arg[i]
+      i = i + 1
     elseif string.sub(argument, 1, 2) == "-I" then
       push(preprocessor_options, argument)
     elseif string.sub(argument, 1, 2) == "-D" then
@@ -65,7 +70,10 @@ while i <= #arg do
       system_error("Unknown option '" .. argument .. "'")
     end
   else
-    local command = {"gcc", "-E"}
+    local command = { }
+    for str in string.gmatch(cppprog, "([^ %%]+)") do
+      push(command, str)
+    end
     for _, opt in ipairs(preprocessor_options) do
       push(command, opt)
     end
